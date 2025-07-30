@@ -20,51 +20,51 @@ def get_bc_cities():
         "X-RapidAPI-Host": "wft-geo-db.p.rapidapi.com"
     }
     try:
-        print("Haciendo llamada a la API de ciudades...")
+        print("Calling the city API...")
         response = requests.get(url, headers=headers)
         print(f"Status code: {response.status_code}")
         
         if response.status_code != 200:
-            print(f"Error en API: {response.status_code}")
-            print(f"Respuesta: {response.text}")
+            print(f"API error: {response.status_code}")
+            print(f"Response: {response.text}")
             return get_fallback_cities()
         
         data = response.json()
-        print(f"Respuesta completa: {data}")
+        print(f"Full response: {data}")
         
         cities_data = data.get("data", [])
-        print(f"Ciudades encontradas: {len(cities_data)}")
+        print(f"Cities found: {len(cities_data)}")
         
         if not cities_data:
-            print("No se encontraron ciudades, usando fallback")
+            print("No cities found, using fallback")
             return get_fallback_cities()
         
         cities = [city["name"] for city in cities_data]
-        print(f"Lista de ciudades: {cities}")
+        print(f"City list: {cities}")
         return cities
         
     except Exception as e:
-        print(f"Error obteniendo ciudades: {e}")
+        print(f"Error retrieving cities: {e}")
         return get_fallback_cities()
 
 def get_fallback_cities():
-    """Ciudades de BC hardcodeadas como fallback"""
+    """Hardcoded fallback BC cities"""
     fallback_cities = [
         "Vancouver", "Victoria", "Burnaby", "Richmond", "Surrey", 
         "Langley", "Abbotsford", "Coquitlam", "Kelowna", "Kamloops",
         "Prince George", "Nanaimo", "Chilliwack", "Vernon", "Penticton",
         "Mission", "North Vancouver", "New Westminster", "White Rock", "Delta"
     ]
-    print(f"Usando ciudades fallback: {fallback_cities}")
+    print(f"Using fallback cities: {fallback_cities}")
     return fallback_cities
 
 def index(request):
-    print("Vista index llamada")
+    print("Index view called")
     cities = get_bc_cities()
-    print(f"Ciudades enviadas al template: {cities}")
+    print(f"Cities passed to template: {cities}")
     
     context = {"cities": cities}
-    print(f"Context completo: {context}")
+    print(f"Full context: {context}")
     
     return render(request, "index.html", context)
 
@@ -72,11 +72,11 @@ def results(request):
     start = request.GET.get("start_city")
     end = request.GET.get("end_city")
     
-    print(f"Ciudad inicio: {start}")
-    print(f"Ciudad destino: {end}")
+    print(f"Start city: {start}")
+    print(f"End city: {end}")
     
     if not start or not end:
-        return HttpResponse("Error: Debe proporcionar ciudad de inicio y destino", status=400)
+        return HttpResponse("Error: You must provide both start and end cities", status=400)
 
     def get_weather(city):
         try:
@@ -99,13 +99,13 @@ def results(request):
             geo = requests.get(geo_url, headers=headers)
             
             if geo.status_code != 200:
-                raise Exception(f"Error en API: {geo.status_code}")
+                raise Exception(f"Geo API error: {geo.status_code}")
             
             json_data = geo.json()
             data_list = json_data.get("data", [])
             
             if not data_list:
-                raise Exception(f"No se encontraron coordenadas para la ciudad: {city}")
+                raise Exception(f"No coordinates found for city: {city}")
             
             city_data = None
             for item in data_list:
@@ -119,7 +119,7 @@ def results(request):
             return city_data["latitude"], city_data["longitude"]
             
         except Exception as e:
-            print(f"Error obteniendo coordenadas para {city}: {e}")
+            print(f"Error getting coordinates for {city}: {e}")
             fallback_coords = {
                 "vancouver": (49.2827, -123.1207),
                 "victoria": (48.4284, -123.3656),
@@ -132,16 +132,16 @@ def results(request):
             
             city_lower = city.lower()
             if city_lower in fallback_coords:
-                print(f"Usando coordenadas fallback para {city}")
+                print(f"Using fallback coordinates for {city}")
                 return fallback_coords[city_lower]
             
-            raise Exception(f"No se pudieron obtener las coordenadas para {city}: {e}")
+            raise Exception(f"Could not retrieve coordinates for {city}: {e}")
 
     try:
         start_coords = get_coords(start)
         end_coords = get_coords(end)
     except Exception as e:
-        return HttpResponse(f"Error obteniendo coordenadas: {e}", status=400)
+        return HttpResponse(f"Error getting coordinates: {e}", status=400)
 
     try:
         headers = {'Authorization': ORS_KEY}
@@ -151,18 +151,18 @@ def results(request):
         route_response = requests.post("https://api.openrouteservice.org/v2/directions/driving-car", json=body, headers=headers)
         
         if route_response.status_code != 200:
-            raise Exception(f"Error en API de rutas: {route_response.status_code}")
+            raise Exception(f"Route API error: {route_response.status_code}")
             
         route = route_response.json()
         
         if "features" not in route or not route["features"]:
-            raise Exception("Respuesta de ruta inválida")
+            raise Exception("Invalid route response")
             
         summary = route["features"][0]["properties"]["summary"]
         steps = route["features"][0]["properties"]["segments"][0]["steps"]
         
     except Exception as e:
-        return HttpResponse(f"Error obteniendo ruta: {e}", status=400)
+        return HttpResponse(f"Error retrieving route: {e}", status=400)
 
     hour = datetime.now().hour
     advice = "Good time to start your trip!" if "rain" not in weather_start.lower() and 6 <= hour <= 20 else "Consider delaying your trip due to bad weather."
@@ -177,7 +177,7 @@ def results(request):
             "advice": advice
         })
     except Exception as e:
-        print(f"Error guardando en historial: {e}")
+        print(f"Error saving to history: {e}")
 
     return render(request, "results.html", {
         "start": start,
@@ -192,7 +192,7 @@ def results(request):
 
 def history(request):
     try:
-        consultas = list(history_collection.find().sort("timestamp", -1))
-        return render(request, "history.html", {"queries": consultas})
+        queries = list(history_collection.find().sort("timestamp", -1))
+        return render(request, "history.html", {"queries": queries})
     except Exception as e:
-        return HttpResponse(f"Error accediendo al historial: {e}", status=500)
+        return HttpResponse(f"Error accessing history: {e}", status=500)
