@@ -1,0 +1,22 @@
+<h2>Trip Plan: {{ start }} ➜ {{ end }}</h2>
+
+<div>
+  <p><strong>Weather in {{ start }}:</strong> {{ weather_start }}</p>
+  <p><strong>Weather in {{ end }}:</strong> {{ weather_end }}</p>
+</div>
+
+<div>
+  <p><strong>📏 Distance:</strong> {{ distance }} km</p>
+  <p><strong>⏱ Estimated time:</strong> {{ duration }} minutes</p>
+</div>
+
+<h3>Route Steps:</h3>
+<ol>
+  {% for step in steps %}
+    <li>{{ step.instruction }} ({{ step.distance|floatformat:1 }} m)</li>
+  {% endfor %}
+</ol>
+
+<p><strong>Advice:</strong> {{ advice }}</p>
+
+<a href="/" style="display:inline-block; margin-top:20px;">🔙 Back to Planner</a>

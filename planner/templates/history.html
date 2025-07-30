@@ -1,0 +1,29 @@
+<h1>Travel History</h1>
+
+<table border="1" style="border-collapse: collapse; width: 100%; text-align: center;">
+  <thead style="background-color: #f2f2f2;">
+    <tr>
+      <th>Start City</th>
+      <th>End City</th>
+      <th>Date & Time</th>
+      <th>Advice</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for q in queries %}
+      <tr>
+        <td>{{ q.start }}</td>
+        <td>{{ q.end }}</td>
+        <td>{{ q.timestamp|date:"Y-m-d H:i" }}</td>
+        <td>{{ q.advice }}</td>
+      </tr>
+    {% empty %}
+      <tr>
+        <td colspan="4">No travel history available.</td>
+      </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+<br>
+<a href="/">Plan Another Trip</a>

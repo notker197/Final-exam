@@ -1,0 +1,26 @@
+<h1>Smart Travel Planner – Troy</h1>
+
+<form action="/results/" method="get">
+  <label for="start_city"><strong>Start City:</strong></label>
+  <select name="start_city" id="start_city" required>
+    {% for city in cities %}
+      <option value="{{ city }}">{{ city }}</option>
+    {% endfor %}
+  </select>
+
+  <br><br>
+
+  <label for="end_city"><strong>End City:</strong></label>
+  <select name="end_city" id="end_city" required>
+    {% for city in cities %}
+      <option value="{{ city }}">{{ city }}</option>
+    {% endfor %}
+  </select>
+
+  <br><br>
+
+  <button type="submit">Plan Trip</button>
+</form>
+
+<br>
+<a href="/history/">View Trip History</a>
