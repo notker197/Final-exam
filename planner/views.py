@@ -27,7 +27,6 @@ def get_bc_cities():
         if response.status_code != 200:
             print(f"Error en API: {response.status_code}")
             print(f"Respuesta: {response.text}")
-            # Fallback con ciudades hardcodeadas
             return get_fallback_cities()
         
         data = response.json()
@@ -99,18 +98,15 @@ def results(request):
             }
             geo = requests.get(geo_url, headers=headers)
             
-            # Verificar si la respuesta es exitosa
             if geo.status_code != 200:
                 raise Exception(f"Error en API: {geo.status_code}")
             
             json_data = geo.json()
             data_list = json_data.get("data", [])
             
-            # Verificar si hay resultados
             if not data_list:
                 raise Exception(f"No se encontraron coordenadas para la ciudad: {city}")
             
-            # Buscar una coincidencia exacta o la más cercana
             city_data = None
             for item in data_list:
                 if item["name"].lower() == city.lower():
@@ -124,7 +120,6 @@ def results(request):
             
         except Exception as e:
             print(f"Error obteniendo coordenadas para {city}: {e}")
-            # Coordenadas por defecto para ciudades principales como fallback
             fallback_coords = {
                 "vancouver": (49.2827, -123.1207),
                 "victoria": (48.4284, -123.3656),
