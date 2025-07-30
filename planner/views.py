@@ -76,11 +76,9 @@ def results(request):
     print(f"Ciudad inicio: {start}")
     print(f"Ciudad destino: {end}")
     
-    # Validar que se hayan proporcionado ambas ciudades
     if not start or not end:
         return HttpResponse("Error: Debe proporcionar ciudad de inicio y destino", status=400)
 
-    # Obtener clima
     def get_weather(city):
         try:
             res = requests.get(f"http://api.openweathermap.org/data/2.5/weather?q={city},CA&appid={OPENWEATHER_KEY}&units=metric")
@@ -119,7 +117,6 @@ def results(request):
                     city_data = item
                     break
             
-            # Si no hay coincidencia exacta, usar el primer resultado
             if not city_data:
                 city_data = data_list[0]
             
@@ -143,7 +140,6 @@ def results(request):
                 print(f"Usando coordenadas fallback para {city}")
                 return fallback_coords[city_lower]
             
-            # Si no hay fallback, lanzar el error
             raise Exception(f"No se pudieron obtener las coordenadas para {city}: {e}")
 
     try:
@@ -152,7 +148,6 @@ def results(request):
     except Exception as e:
         return HttpResponse(f"Error obteniendo coordenadas: {e}", status=400)
 
-    # Obtener ruta
     try:
         headers = {'Authorization': ORS_KEY}
         body = {
@@ -165,7 +160,6 @@ def results(request):
             
         route = route_response.json()
         
-        # Verificar que la respuesta tenga la estructura esperada
         if "features" not in route or not route["features"]:
             raise Exception("Respuesta de ruta inválida")
             
@@ -178,7 +172,6 @@ def results(request):
     hour = datetime.now().hour
     advice = "Good time to start your trip!" if "rain" not in weather_start.lower() and 6 <= hour <= 20 else "Consider delaying your trip due to bad weather."
 
-    # Guardar en historial
     try:
         history_collection.insert_one({
             "start": start,
